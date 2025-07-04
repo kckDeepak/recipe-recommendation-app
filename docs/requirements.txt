@@ -14,3 +14,12 @@ python 3.10
 
 pip install requests mysql-connector-python scikit-learn pandas surprise
 
+
+
+flask==2.0.1
+requests==2.28.1
+mysql-connector-python==8.0.33
+scikit-learn==1.2.2
+pandas==1.5.3
+surprise==0.1
+numpy<2
