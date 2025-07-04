@@ -9,3 +9,8 @@ Recipe Recommendation App Requirements
 
 API Setup
 Register for Spoonacular API: Sign up at https://spoonacular.com/food-api to obtain an API key (free tier offers 150 requests/day, sufficient for development).
+
+python 3.10
+
+pip install requests mysql-connector-python scikit-learn pandas surprise
+
