@@ -1,0 +1,11 @@
+Recipe Recommendation App Requirements
+- Input: Ingredients, dietary preferences (vegan, keto, gluten-free), meal types
+- Output: Recipe title, instructions, cooking time, nutritional data (calories, macros)
+- Filters: 90% compliance with dietary needs (low-calorie, diabetic-friendly)
+- Accuracy: 92.5% recommendation accuracy
+- UI: Responsive, user-friendly, 85% satisfaction score
+- Future: Support real-time feedback, voice commands
+
+
+API Setup
+Register for Spoonacular API: Sign up at https://spoonacular.com/food-api to obtain an API key (free tier offers 150 requests/day, sufficient for development).
