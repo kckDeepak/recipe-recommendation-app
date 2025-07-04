@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Recommendation App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-blue-600 text-white py-4">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Recipe Recommendation App</h1>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <!-- Input Section -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Find Recipes</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="ingredients" class="block text-sm font-medium text-gray-700">Ingredients (comma-separated)</label>
+                    <input type="text" id="ingredients" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., chicken, tomatoes, onions">
+                </div>
+                <div class="flex-1">
+                    <label for="diet" class="block text-sm font-medium text-gray-700">Dietary Preference (optional)</label>
+                    <select id="diet" class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">None</option>
+                        <option value="gluten-free">Gluten-Free</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="keto">Keto</option>
+                        <option value="paleo">Paleo</option>
+                    </select>
+                </div>
+            </div>
+            <button id="recommend-btn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Get Recommendations</button>
+            <p id="error-message" class="text-red-500 mt-2 hidden"></p>
+        </section>
+
+        <!-- Recipes Section -->
+        <section id="recipes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Recipe cards will be dynamically inserted here -->
+        </section>
+    </main>
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Recipe Recommendation App</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        const recommendBtn = document.getElementById('recommend-btn');
+        const ingredientsInput = document.getElementById('ingredients');
+        const dietSelect = document.getElementById('diet');
+        const errorMessage = document.getElementById('error-message');
+        const recipesSection = document.getElementById('recipes');
+
+        // Fetch recommendations
+        recommendBtn.addEventListener('click', async () => {
+            errorMessage.classList.add('hidden');
+            recipesSection.innerHTML = '';
+
+            const ingredients = ingredientsInput.value.trim().split(',').map(i => i.trim()).filter(i => i);
+            const diet = dietSelect.value;
+
+            if (ingredients.length === 0) {
+                showError('Please enter at least one ingredient.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/recommend`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ingredients,
+                        diet: diet || undefined,
+                        user_id: 1 // Hardcoded for testing; replace with auth logic in production
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Failed to fetch recommendations.');
+                    return;
+                }
+
+                if (data.length === 0) {
+                    showError('No recipes found for the given ingredients.');
+                    return;
+                }
+
+                displayRecipes(data);
+            } catch (error) {
+                showError('An error occurred while fetching recommendations.');
+                console.error('Fetch error:', error);
+            }
+        });
+
+        // Display error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        // Display recipes
+        function displayRecipes(recipes) {
+            recipesSection.innerHTML = '';
+            recipes.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-lg shadow-md';
+                card.innerHTML = `
+                    <h3 class="text-xl font-semibold mb-2">${recipe.title}</h3>
+                    <p class="text-gray-700 mb-2"><strong>Ingredients:</strong> ${recipe.ingredients.join(', ')}</p>
+                    <p class="text-gray-700 mb-2"><strong>Instructions:</strong> ${recipe.instructions || 'No instructions available'}</p>
+                    <p class="text-gray-700 mb-4"><strong>Nutrition:</strong> ${formatNutrition(recipe.nutrition)}</p>
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-gray-700 mr-2">Rate:</label>
+                        <select id="rating-${recipe.id}" class="p-1 border border-gray-300 rounded-md">
+                            <option value="0">Select</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                        <button onclick="submitRating(${recipe.id})" class="ml-2 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700">Submit</button>
+                    </div>
+                `;
+                recipesSection.appendChild(card);
+            });
+        }
+
+        // Format nutrition data
+        function formatNutrition(nutrition) {
+            if (!nutrition || !nutrition.nutrients) return 'No nutritional data available';
+            return nutrition.nutrients.map(n => `${n.name}: ${n.amount}${n.unit}`).join(', ');
+        }
+
+        // Submit rating
+        async function submitRating(recipeId) {
+            const rating = document.getElementById(`rating-${recipeId}`).value;
+            if (rating === '0') {
+                showError('Please select a rating.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/rate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: 1, // Hardcoded for testing
+                        recipe_id: recipeId,
+                        rating: parseInt(rating)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Failed to submit rating.');
+                    return;
+                }
+
+                alert('Rating submitted successfully!');
+            } catch (error) {
+                showError('An error occurred while submitting the rating.');
+                console.error('Rating error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

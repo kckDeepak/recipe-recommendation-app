@@ -1,11 +1,19 @@
 import unittest
 import requests
 from app import app
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 class BackendTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
         self.app.testing = True
+        self.api_key = os.getenv("SPOONACULAR_API_KEY")
+        if not self.api_key:
+            self.skipTest("SPOONACULAR_API_KEY not found in .env file")
 
     def test_root_endpoint(self):
         response = self.app.get('/')
@@ -35,7 +43,7 @@ class BackendTestCase(unittest.TestCase):
             self.assertEqual(data['status'], 'success')
 
     def test_fetch_recipes(self):
-        url = f"https://api.spoonacular.com/recipes/findByIngredients?ingredients=chicken,tomatoes&number=1&apiKey=7d659ec603de4524afcea2cd155641b8"
+        url = f"https://api.spoonacular.com/recipes/findByIngredients?ingredients=chicken,tomatoes&number=1&apiKey={self.api_key}"
         try:
             response = requests.get(url, timeout=5)
             self.assertEqual(response.status_code, 200)

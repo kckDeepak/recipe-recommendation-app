@@ -1,0 +1,6 @@
+# Existing entries (if any)
+*.pyc
+__pycache__/
+*.db
+# Add .env to prevent committing sensitive data
+.env

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
 import mysql.connector
 from mysql.connector import Error
@@ -7,7 +8,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import json
 import numpy as np
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Attempt to import surprise, with fallback
 try:
     from surprise import SVD, Dataset, Reader
@@ -20,9 +24,11 @@ except ImportError as e:
 from db_config import db_config
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
-# Spoonacular API key (replace with your actual key from https://spoonacular.com/food-api)
-API_KEY = "7d659ec603de4524afcea2cd155641b8"
+API_KEY = os.getenv("SPOONACULAR_API_KEY")
+if not API_KEY:
+    raise ValueError("SPOONACULAR_API_KEY not found in .env file")
 
 # MySQL connection
 def get_db_connection():
