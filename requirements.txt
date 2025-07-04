@@ -1,0 +1,22 @@
+Frontend: Input forms (text input for ingredients, dropdowns for diet/meal type), recipe cards for results, responsive design.
+Backend: RESTful API to handle user inputs, query Spoonacular API, and return recommendations.
+Machine Learning: Content-based filtering (TF-IDF) and collaborative filtering (Surprise library).
+Database: MongoDB for caching recipes and user profiles.
+
+
+
+Step 1: Sign Up for Spoonacular API:
+Visit Spoonacular API and create an account.
+
+Install Node.js and npm:
+Download and install Node.js (LTS version) from nodejs.org.
+
+Install MongoDB:
+Download and install MongoDB Community Edition from mongodb.com.
+
+Install Python and Libraries:
+Install Python (3.8 or higher) from python.org.
+
+Install Development Tools:
+Install a code editor like Visual Studio Code.
+Install Postman for API testing.
